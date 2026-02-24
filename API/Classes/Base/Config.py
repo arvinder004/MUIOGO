@@ -20,23 +20,14 @@ S3_SECRET = ""
 ALLOWED_EXTENSIONS = set(['zip', 'application/zip'])
 ALLOWED_EXTENSIONS_XLS = set(['xls', 'xlsx'])
 
-UPLOAD_FOLDER = Path('WebAPP')
-WebAPP_PATH = Path('WebAPP')
-DATA_STORAGE = Path("WebAPP", 'DataStorage')
-CLASS_FOLDER = Path("WebAPP", 'Classes')
-EXTRACT_FOLDER = Path("")
-SOLVERs_FOLDER = Path('WebAPP', 'SOLVERs')
-
-
-#absolute paths
-# OSEMOSYS_ROOT = os.path.abspath(os.getcwd())
-# UPLOAD_FOLDER = Path(OSEMOSYS_ROOT, 'WebAPP')
-# WebAPP_PATH = Path(OSEMOSYS_ROOT, 'WebAPP')
-# DATA_STORAGE = Path(OSEMOSYS_ROOT, "WebAPP", 'DataStorage')
-# CLASS_FOLDER = Path(OSEMOSYS_ROOT, "WebAPP", 'Classes')
-# EXTRACT_FOLDER = Path(OSEMOSYS_ROOT, "")
-# SOLVERs_FOLDER = Path(OSEMOSYS_ROOT, 'WebAPP', 'SOLVERs')
-
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
+UPLOAD_FOLDER = PROJECT_ROOT / 'WebAPP'
+WebAPP_PATH = PROJECT_ROOT / 'WebAPP'
+DATA_STORAGE = PROJECT_ROOT / 'WebAPP' / 'DataStorage'
+CLASS_FOLDER = PROJECT_ROOT / 'WebAPP' / 'Classes'
+EXTRACT_FOLDER = PROJECT_ROOT
+SOLVERs_FOLDER = PROJECT_ROOT / 'WebAPP' / 'SOLVERs'
+      
 os.chmod(DATA_STORAGE, 0o777)
 
 HEROKU_DEPLOY = 0

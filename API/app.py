@@ -17,11 +17,11 @@ from Routes.Case.ViewDataRoute import viewdata_api
 from Routes.DataFile.DataFileRoute import datafile_api
 
 #RADI
-template_dir = os.path.abspath('WebAPP')
-static_dir = os.path.abspath('WebAPP')
+# template_dir = os.path.abspath('WebAPP')
+# static_dir = os.path.abspath('WebAPP')
 
-# template_dir = Config.WebAPP_PATH.resolve()
-# static_dir = Config.WebAPP_PATH.resolve()
+template_dir = str(Config.WebAPP_PATH.resolve())
+static_dir = str(Config.WebAPP_PATH.resolve())
 
 # template_dir = os.path.join(sys._MEIPASS, 'WebAPP') 
 # static_dir = os.path.join(sys._MEIPASS, 'WebAPP') 
