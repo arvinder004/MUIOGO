@@ -9,8 +9,7 @@ This guide provides step-by-step instructions for installing and running MUIOGO 
 - [System Requirements](#system-requirements)
 - [Windows Installation](#windows-installation)
 - [macOS Installation](#macos-installation)
-- [Running the Application](#running-the-application)
-- [Verifying Installation](#verifying-installation)
+- [Starting the Server](#starting-the-server)
 - [Next Steps](#next-steps)
 - [Quick Reference](#quick-reference)
 
