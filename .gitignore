@@ -1,5 +1,6 @@
 Procfile
 .env
+.vscode
 dist/
 build/
 venv/
