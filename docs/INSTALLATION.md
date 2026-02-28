@@ -29,39 +29,21 @@ This guide provides step-by-step instructions for installing and running MUIOGO 
 
 ## Windows Installation
 
-### Step 1: Install Python
+### Step 1: Verify Prerequisites
 
-1. **Download Python**
-   - Visit [python.org/downloads](https://www.python.org/downloads/)
-   - Download Python 3.11 or 3.12 (recommended)
-   - Choose the "Windows installer (64-bit)" option
+Open Command Prompt (press `Win + R`, type `cmd`, press Enter) and verify:
 
-2. **Run the Installer**
-   - Double-click the downloaded `.exe` file
-   - ⚠️ **IMPORTANT**: Check "Add Python to PATH" at the bottom
-   - Click "Install Now"
-   - Wait for installation to complete
-   - Click "Close" when finished
+```cmd
+python --version
+pip --version
+git --version
+```
 
-3. **Verify Python Installation**
-   - Open Command Prompt (press `Win + R`, type `cmd`, press Enter)
-   - Type: `python --version`
-   - You should see: `Python 3.11.x` or similar
-   - Type: `pip --version`
-   - You should see pip version information
+**If any command fails:**
+- **Python**: Download from [python.org](https://www.python.org/downloads/)
+- **Git**: Download from [git-scm.com](https://git-scm.com/download/win)
 
-### Step 2: Install Git (Optional but Recommended)
-
-1. **Download Git**
-   - Visit [git-scm.com/download/win](https://git-scm.com/download/win)
-   - Download the 64-bit installer
-
-2. **Install Git**
-   - Run the installer
-   - Use default settings (just click "Next" through all options)
-   - Click "Install" and wait for completion
-
-### Step 3: Download MUIOGO
+### Step 2: Download MUIOGO
 
 **Option A: Using Git (Recommended)**
 ```cmd
@@ -80,7 +62,7 @@ cd MUIOGO
    cd C:\Users\YourUsername\Documents\MUIOGO
    ```
 
-### Step 4: Create Virtual Environment
+### Step 3: Create Virtual Environment
 
 A virtual environment keeps MUIOGO's dependencies separate from other Python projects.
 
@@ -88,92 +70,39 @@ A virtual environment keeps MUIOGO's dependencies separate from other Python pro
 python -m venv venv
 ```
 
-This creates a `venv` folder in your MUIOGO directory.
-
-### Step 5: Activate Virtual Environment
+### Step 4: Activate Virtual Environment
 
 ```cmd
 venv\Scripts\activate
 ```
 
-You should see `(venv)` appear at the beginning of your command prompt line.
-
-### Step 6: Install Dependencies
+### Step 5: Install Dependencies
 
 ```cmd
 pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-This will take 2-5 minutes depending on your internet speed. You'll see packages being downloaded and installed.
-
-**If you encounter errors**, see the [Troubleshooting](#troubleshooting) section.
-
-### Step 7: Set Up Demo Data (Optional but Recommended)
-
-```cmd
-cd assets\demo-data
-tar -xf CLEWs.Demo.zip -C ..\..\WebAPP\DataStorage\
-cd ..\..
-```
-
-Or manually:
-1. Navigate to `MUIOGO\assets\demo-data\`
-2. Extract `CLEWs.Demo.zip`
-3. Move the extracted `CLEWs Demo` folder to `MUIOGO\WebAPP\DataStorage\`
-
 ---
 
 ## macOS Installation
 
-### Step 1: Install Homebrew (if not already installed)
+### Step 1: Verify Prerequisites
 
-Homebrew is a package manager that makes installing software easier on macOS.
-
-1. **Open Terminal**
-   - Press `Cmd + Space`, type "Terminal", press Enter
-
-2. **Install Homebrew**
-   ```bash
-   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-   ```
-
-3. **Follow the on-screen instructions**
-   - You may need to enter your password
-   - Wait for installation to complete (5-10 minutes)
-
-4. **Verify Homebrew**
-   ```bash
-   brew --version
-   ```
-
-### Step 2: Install Python
-
-1. **Install Python via Homebrew**
-   ```bash
-   brew install python@3.11
-   ```
-
-2. **Verify Installation**
-   ```bash
-   python3 --version
-   pip3 --version
-   ```
-
-   You should see Python 3.11.x and pip version information.
-
-### Step 3: Install Git (if not already installed)
+Open Terminal (press `Cmd + Space`, type "Terminal", press Enter) and verify:
 
 ```bash
-brew install git
-```
-
-Verify:
-```bash
+python3 --version
+pip3 --version
 git --version
 ```
 
-### Step 4: Download MUIOGO
+**If any command fails:**
+- **Homebrew**: `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"`
+- **Python**: `brew install python`
+- **Git**: `brew install git`
+
+### Step 2: Download MUIOGO
 
 **Option A: Using Git (Recommended)**
 ```bash
@@ -192,43 +121,24 @@ cd MUIOGO
    cd ~/Documents/MUIOGO
    ```
 
-### Step 5: Create Virtual Environment
+### Step 3: Create Virtual Environment
 
 ```bash
 python3 -m venv venv
 ```
 
-### Step 6: Activate Virtual Environment
+### Step 4: Activate Virtual Environment
 
 ```bash
 source venv/bin/activate
 ```
 
-You should see `(venv)` appear at the beginning of your terminal prompt.
-
-### Step 7: Install Dependencies
+### Step 5: Install Dependencies
 
 ```bash
 pip install --upgrade pip
 pip install -r requirements.txt
 ```
-
-This will take 2-5 minutes. You'll see packages being downloaded and installed.
-
-**Note**: On macOS, `pywin32-ctypes` will be automatically skipped as it's Windows-only.
-
-### Step 8: Set Up Demo Data (Optional but Recommended)
-
-```bash
-cd assets/demo-data
-unzip CLEWs.Demo.zip -d ../../WebAPP/DataStorage/
-cd ../..
-```
-
-Or manually:
-1. Navigate to `MUIOGO/assets/demo-data/`
-2. Double-click `CLEWs.Demo.zip` to extract
-3. Move the extracted `CLEWs Demo` folder to `MUIOGO/WebAPP/DataStorage/`
 ---
 ### Starting the Server
 
@@ -294,41 +204,6 @@ Serving on http://127.0.0.1:5002
 - Wait for the server to shut down gracefully
 
 ---
-
-## Verifying Installation
-
-### Quick Verification Checklist
-
-Run these commands to verify everything is installed correctly:
-
-#### Windows
-```cmd
-cd C:\Users\YourUsername\Documents\MUIOGO
-venv\Scripts\activate
-python --version
-pip list | findstr Flask
-glpsol --version
-```
-
-#### macOS
-```bash
-cd ~/Documents/MUIOGO
-source venv/bin/activate
-python3 --version
-pip list | grep Flask
-glpsol --version
-```
-
-### Expected Results
-
-✅ Python version 3.9 or higher  
-✅ Flask appears in pip list  
-✅ GLPK version information displays  
-✅ Server starts without errors  
-✅ Web interface loads at http://127.0.0.1:5002
-
----
-
 
 ## Next Steps
 
