@@ -302,8 +302,11 @@ def _windows_add_to_user_path(bin_dir: Path) -> None:
     # Mutate PATH in current session so verification passes immediately
     current = os.environ.get("PATH", "")
     entries = current.split(os.pathsep)
-    if str(bin_dir) not in entries:
-        os.environ["PATH"] = str(bin_dir) + os.pathsep + current
+    bin_str = str(bin_dir)
+
+    entries_lower = [e.lower() for e in entries]
+    if bin_str.lower() not in entries_lower:
+        os.environ["PATH"] = bin_str + os.pathsep + current
 
     # Persist to user PATH via registry
     try:
@@ -319,13 +322,18 @@ def _windows_add_to_user_path(bin_dir: Path) -> None:
                 cur, _ = winreg.QueryValueEx(key, "PATH")
             except FileNotFoundError:
                 cur = ""
-            winreg.SetValueEx(
-                key,
-                "PATH",
-                0,
-                winreg.REG_EXPAND_SZ,
-                f"{bin_dir};{cur}" if cur else str(bin_dir),
-            )
+
+            existing_paths_lower = [p.strip().lower() for p in cur.split(";") if p.strip()]
+
+            if bin_str.lower() not in existing_paths_lower:
+                new_path = f"{bin_str};{cur}" if cur else bin_str
+                winreg.SetValueEx(
+                    key,
+                    "PATH",
+                    0,
+                    winreg.REG_EXPAND_SZ,
+                    new_path,
+                )
         # Broadcast PATH change
         ctypes.windll.user32.SendMessageTimeoutW(
             0xFFFF, 0x001A, 0, "Environment", 0, 1000, None
@@ -334,7 +342,7 @@ def _windows_add_to_user_path(bin_dir: Path) -> None:
         _print_warn(
             "Could not persist CBC to user PATH; add manually", f"{bin_dir} ({exc})"
         )
-    print("Note: open a NEW terminal for this PATH change to take effect.")
+    print("  Note: open a NEW terminal for this PATH change to take effect.")
 
 
 def _install_cbc_windows_manual() -> bool:
@@ -348,8 +356,8 @@ def _install_cbc_windows_manual() -> bool:
     )
     install_dir = Path(os.environ.get("LOCALAPPDATA", str(Path.home()))) / "cbc"
     try:
+        _print_warn("Attempting manual CBC installation...")
         install_dir.mkdir(parents=True, exist_ok=True)
-        print(f"  Downloading CBC {version} from GitHub ...")
         fd, tmp_str = tempfile.mkstemp(suffix=".zip")
         os.close(fd)
 
@@ -359,12 +367,10 @@ def _install_cbc_windows_manual() -> bool:
             with open(tmp_path, "wb") as f:
                 f.write(response.read())
 
-        print("  Downloaded file size:", tmp_path.stat().st_size)
         if tmp_path.stat().st_size < 10_000_000:
             _print_fail("CBC download invalid (unexpected file size)")
             return False
 
-        print("  Extracting CBC ...")
         with zipfile.ZipFile(tmp_path, "r") as zf:
             _safe_extract_zip(zf, install_dir)
         tmp_path.unlink()
@@ -379,7 +385,7 @@ def _install_cbc_windows_manual() -> bool:
             bin_dir = matches[0].parent
 
         _windows_add_to_user_path(bin_dir)
-        _print_pass("CBC installed via manual fallback", str(bin_dir))
+        _print_pass("CBC installed", str(bin_dir))
         return True
     except Exception as exc:
         _print_fail("CBC manual install failed", str(exc))
@@ -514,7 +520,7 @@ def install_solvers() -> bool:
     cbc_ok = _which("cbc") is not None
 
     if glpk_ok and cbc_ok:
-        print("  Both solvers already installed — skipping.")
+        _print_pass("  Both solvers are already available in PATH — skipping.")
         return True
 
     success = True
@@ -588,21 +594,26 @@ def install_solvers() -> bool:
                     _print_warn("coinor-cbc not available via Chocolatey, using manual fallback")
 
                     if not _install_cbc_windows_manual():
-                        _print_fail("CBC installation failed", "Manual fallback also failed")
                         success = False
 
         elif _which("winget"):
-            _print_warn(
-                "winget detected but GLPK/CBC may not be in winget repos",
-                "Falling back to manual install instructions.",
-            )
-            success = False
+            _print_warn("winget detected but GLPK/CBC not available via winget.")
+
+            if not glpk_ok:
+                success = False
+
+            if not cbc_ok:
+                if not _install_cbc_windows_manual():
+                    success = False
+
         else:
-            _print_fail(
-                "No supported package manager (choco) found on Windows",
-                "Install Chocolatey (https://chocolatey.org/) or install GLPK and CBC manually.",
+            _print_warn(
+                "No supported package manager (choco/winget) found on Windows",
+                "Install Chocolatey (https://chocolatey.org/) or install GLPK manually.",
             )
-            success = False
+            if not cbc_ok:
+                if not _install_cbc_windows_manual():
+                    success = False
 
     if success:
         print(f"  {GREEN}Solver dependencies installed.{RESET}")
