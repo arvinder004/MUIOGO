@@ -134,7 +134,7 @@ def getResultData():
     try:
         casename = request.json['casename']
         dataJson = request.json['dataJson']
-        if casename != None:
+        if casename is not None:
             dataPath = Path(Config.DATA_STORAGE,casename,'view',dataJson)
             data = File.readFile(dataPath)
             response = data   
@@ -160,7 +160,7 @@ def getParamFile():
 def resultsExists():
     try:
         casename = request.json['casename']
-        if casename != None:
+        if casename is not None:
             resPath = Path(Config.DATA_STORAGE, casename, 'view', 'RYT.json')
             dataPath = Path(Config.DATA_STORAGE,casename,'view','resData.json')
             data = File.readFile(dataPath)
@@ -224,7 +224,7 @@ def updateData():
         case = session.get('osycase', None)
         dataJson = request.json['dataJson']
         dataPath = Path(Config.DATA_STORAGE, case, dataJson)
-        if case != None:
+        if case is not None:
             sourceData = File.readFile(dataPath)
             sourceData[param] = data
             File.writeFile(sourceData, dataPath)
@@ -268,7 +268,7 @@ def saveCase():
 
 
         #ako je izabran case, edit mode
-        if case != None and case != '':
+        if case is not None and case != '':
             genDataPath = Path(Config.DATA_STORAGE, case, "genData.json")
 
             ##update za view i res ukoliko nema
