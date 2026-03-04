@@ -7,7 +7,7 @@ viewdata_api = Blueprint('ViewDataRoute', __name__)
 def viewData():
     try:
         casename = request.json['casename']
-        if casename != None:
+        if casename is not None:
             osy = Osemosys(casename)
             data = {}
             data['Tech'] = osy.viewDataByTech()
@@ -24,7 +24,7 @@ def viewData():
 def viewTEData():
     try:
         casename = request.json['casename']
-        if casename != None:
+        if casename is not None:
             osy = Osemosys(casename)
             data = {}
             data['Tech'] = osy.viewRTByTech()
@@ -52,7 +52,7 @@ def updateViewData():
         Timeslice = request.json['Timeslice']
         value = request.json['value']
 
-        if casename != None:
+        if casename is not None:
             osy = Osemosys(casename)
             osy.updateViewData(casename, year, ScId, groupId, paramId, TechId, CommId, EmisId, Timeslice, value)
             response = {
@@ -81,7 +81,7 @@ def updateTEViewData():
         emisId = request.json['emisId']
         value = request.json['value']
 
-        if casename != None:
+        if casename is not None:
             osy = Osemosys(casename)
             data = osy.updateTEViewData(casename, scId, groupId, paramId, techId, emisId, value)
             response = {
