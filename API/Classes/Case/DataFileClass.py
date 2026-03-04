@@ -769,9 +769,9 @@ class DataFile(Osemosys):
                 #dznamicaly call function depending on defined params
                 for group, array in self.PARAM.items():
                     if array:
-                        func_name = Config.GEN_F[group]
-                        func = getattr(self,func_name) 
-                        func() 
+                        func_name = f"gen_{group}"
+                        func = getattr(self, func_name)
+                        func()
 
                 self.f.write('{}{}'.format('#', '\n'))
                 self.f.write('{}'.format('end;'))
@@ -2316,7 +2316,7 @@ class DataFile(Osemosys):
                 #ovdje parsa result.txt file
                 df[['temp','value']] = df['temp'].str.split(')', expand=True)                
 
-                df = df.applymap(lambda x: x.strip() if isinstance(x,str) else x)
+                df = df.map(lambda x: x.strip() if isinstance(x,str) else x)
 
                 #error when moved to ython 3.11, Columns must have smae length as key
                 # df['value'] = df['value'].str.split(' ', expand=True)
@@ -3305,7 +3305,7 @@ class DataFile(Osemosys):
             
             if len(df) > 0:
                 df[['temp','value']] = df['temp'].str.split(')', expand=True)
-                df = df.applymap(lambda x: x.strip() if isinstance(x,str) else x)
+                df = df.map(lambda x: x.strip() if isinstance(x,str) else x)
                 #error when moved to ython 3.11, Columns must have smae length as key
                 # df['value'] = df['value'].str.split(' ', expand=True)
                 df['value'] = df['value'].str.split(' ', expand=True)[0]
@@ -3482,7 +3482,7 @@ class DataFile(Osemosys):
             
             if len(df) > 0:
                 df[['temp','value']] = df['temp'].str.split(')', expand=True)
-                df = df.applymap(lambda x: x.strip() if isinstance(x,str) else x)
+                df = df.map(lambda x: x.strip() if isinstance(x,str) else x)
                 #error when moved to ython 3.11, Columns must have smae length as key
                 # df['value'] = df['value'].str.split(' ', expand=True)
                 df['value'] = df['value'].str.split(' ', expand=True)[0]
@@ -4146,7 +4146,7 @@ class DataFile(Osemosys):
             
             if len(df) > 0:
                 df[['temp','value']] = df['temp'].str.split(')', expand=True)
-                df = df.applymap(lambda x: x.strip() if isinstance(x,str) else x)
+                df = df.map(lambda x: x.strip() if isinstance(x,str) else x)
                 #error when moved to ython 3.11, Columns must have smae length as key
                 # df['value'] = df['value'].str.split(' ', expand=True)
                 df['value'] = df['value'].str.split(' ', expand=True)[0]
