@@ -12,7 +12,7 @@ def generateDataFile():
         casename = request.json['casename']
         caserunname = request.json['caserunname']
 
-        if casename != None:
+        if casename is not None:
             txtFile = DataFile(casename)
             txtFile.generateDatafile(caserunname)
             response = {
@@ -30,7 +30,7 @@ def createCaseRun():
         caserunname = request.json['caserunname']
         data = request.json['data']
 
-        if casename != None:
+        if casename is not None:
             caserun = DataFile(casename)
             response = caserun.createCaseRun(caserunname, data)
      
@@ -46,7 +46,7 @@ def updateCaseRun():
         oldcaserunname = request.json['oldcaserunname']
         data = request.json['data']
 
-        if casename != None:
+        if casename is not None:
             caserun = DataFile(casename)
             response = caserun.updateCaseRun(caserunname, oldcaserunname, data)
      
@@ -72,7 +72,7 @@ def deleteCaseRun():
                 elif os.path.isdir(item_path):
                     shutil.rmtree(item_path)  # delete subfolder
 
-        if casename != None:
+        if casename is not None:
             caserun = DataFile(casename)
             response = caserun.deleteCaseRun(caserunname, resultsOnly)    
         return jsonify(response), 200
@@ -100,7 +100,7 @@ def deleteScenarioCaseRuns():
         scenarioId = request.json['scenarioId']
         casename = request.json['casename']
 
-        if casename != None:
+        if casename is not None:
             caserun = DataFile(casename)
             response = caserun.deleteScenarioCaseRuns(scenarioId)
      
@@ -115,7 +115,7 @@ def saveView():
         param = request.json['param']
         data = request.json['data']
 
-        if casename != None:
+        if casename is not None:
             caserun = DataFile(casename)
             response = caserun.saveView(data, param)
      
@@ -143,7 +143,7 @@ def readDataFile():
     try:
         casename = request.json['casename']
         caserunname = request.json['caserunname']
-        if casename != None:
+        if casename is not None:
             txtFile = DataFile(casename)
             data = txtFile.readDataFile(caserunname)
             response = data    
@@ -158,7 +158,7 @@ def validateInputs():
     try:
         casename = request.json['casename']
         caserunname = request.json['caserunname']
-        if casename != None:
+        if casename is not None:
             df = DataFile(casename)
             validation = df.validateInputs(caserunname)
             response = validation    
@@ -246,7 +246,7 @@ def batchRun():
         modelname = request.json['modelname']
         cases = request.json['cases']
 
-        if modelname != None:
+        if modelname is not None:
             txtFile = DataFile(modelname)
             for caserun in cases:
                 txtFile.generateDatafile(caserun)
@@ -263,7 +263,7 @@ def cleanUp():
     try:
         modelname = request.json['modelname']
 
-        if modelname != None:
+        if modelname is not None:
             model = DataFile(modelname)
             response = model.cleanUp()    
 
