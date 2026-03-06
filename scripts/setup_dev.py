@@ -141,6 +141,153 @@ def _requirements_hash_file() -> Path:
     return VENV_DIR / ".requirements.sha256"
 
 
+def _read_env_lines() -> list[str] | None:
+    if not ENV_FILE.exists():
+        return []
+    try:
+        return ENV_FILE.read_text(encoding="utf-8").splitlines()
+    except Exception:
+        return None
+
+
+def _read_env_var(name: str) -> str | None:
+    lines = _read_env_lines()
+    if lines is None:
+        return None
+
+    prefix = f"{name}="
+    for raw_line in lines:
+        line = raw_line.strip()
+        if not line or line.startswith("#") or not line.startswith(prefix):
+            continue
+
+        value = line.split("=", 1)[1].strip()
+        if len(value) >= 2 and value[0] == value[-1] and value[0] in {"'", '"'}:
+            value = value[1:-1]
+        return value or None
+
+    return None
+
+
+def _format_env_value(value: str) -> str:
+    if value and not any(ch in value for ch in " \t#'\""):
+        return value
+    return "'" + value.replace("'", "\\'") + "'"
+
+
+def _upsert_env_var(name: str, value: str) -> bool:
+    lines = _read_env_lines()
+    if lines is None:
+        return False
+
+    new_entry = f"{name}={_format_env_value(value)}"
+    prefix = f"{name}="
+
+    for i, raw_line in enumerate(lines):
+        if raw_line.strip().startswith(prefix):
+            lines[i] = new_entry
+            break
+    else:
+        if lines and lines[-1] != "":
+            lines.append("")
+        lines.append(new_entry)
+
+    try:
+        ENV_FILE.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    except Exception:
+        return False
+
+    if SYSTEM != "Windows":
+        try:
+            os.chmod(ENV_FILE, 0o600)
+        except OSError:
+            pass
+
+    return True
+
+
+def _configured_env_var(name: str) -> str | None:
+    value = os.environ.get(name, "").strip()
+    if not value:
+        value = _read_env_var(name) or ""
+    value = value.strip().strip("\"'")
+    return value or None
+
+
+def _solver_binary_names(binary_name: str) -> list[str]:
+    names = [binary_name]
+    if SYSTEM == "Windows" and not binary_name.lower().endswith(".exe"):
+        names.insert(0, f"{binary_name}.exe")
+    return names
+
+
+def _find_solver_binary(path: Path, binary_name: str) -> Path | None:
+    binary_names = _solver_binary_names(binary_name)
+
+    if path.is_file():
+        lowered_names = {name.lower() for name in binary_names}
+        return path if path.name.lower() in lowered_names else None
+
+    if not path.is_dir():
+        return None
+
+    for name in binary_names:
+        candidate = path / name
+        if candidate.is_file():
+            return candidate
+
+    return None
+
+
+def _find_solver_binary_on_path(binary_name: str) -> Path | None:
+    for solver_name in _solver_binary_names(binary_name):
+        which = _which(solver_name)
+        if which:
+            return Path(which).resolve()
+
+    return None
+
+
+def _validate_configured_solver_binary(binary_name: str, env_var: str) -> Path | None:
+    env_val = _configured_env_var(env_var)
+    if not env_val:
+        return None
+
+    env_path = Path(env_val).expanduser()
+    env_binary = _find_solver_binary(env_path, binary_name)
+    if env_binary is not None:
+        return env_binary.resolve()
+
+    raise RuntimeError(
+        f"{env_var} is set to '{env_val}', but no '{binary_name}' binary was found there. "
+        f"Set {env_var} to the solver executable or to the directory containing it."
+    )
+
+
+def _resolve_solver_binary(binary_name: str, env_var: str) -> Path | None:
+    env_val = _configured_env_var(env_var)
+    if env_val:
+        env_path = Path(env_val).expanduser()
+        env_binary = _find_solver_binary(env_path, binary_name)
+        if env_binary is not None:
+            return env_binary.resolve()
+
+    return _find_solver_binary_on_path(binary_name)
+
+
+def _persist_solver_env_path(env_var: str, bin_dir: Path) -> None:
+    bin_dir_str = str(bin_dir)
+    os.environ[env_var] = bin_dir_str
+
+    if _upsert_env_var(env_var, bin_dir_str):
+        _print_pass(f"Persisted {env_var}", str(ENV_FILE))
+    else:
+        _print_warn(
+            f"Could not persist {env_var} to .env",
+            "Solver may only be available in new terminals via PATH.",
+        )
+
+
 def _ensure_secret_key_in_env() -> bool:
     """Create a persistent MUIOGO secret key in .env if one does not exist."""
     _print_header("Step 2a: App secret key")
@@ -467,6 +614,7 @@ def _install_cbc_windows_manual() -> bool:
             bin_dir = matches[0].parent
 
         _windows_add_to_user_path(bin_dir)
+        _persist_solver_env_path("SOLVER_CBC_PATH", bin_dir)
         _print_pass("CBC installed", str(bin_dir))
         return True
 
@@ -544,6 +692,7 @@ def _install_glpk_windows_manual() -> bool:
             return False
 
         _windows_add_to_user_path(bin_dir)
+        _persist_solver_env_path("SOLVER_GLPK_PATH", bin_dir)
         _print_pass("GLPK installed", str(bin_dir))
         return True
 
@@ -683,11 +832,11 @@ def install_solvers() -> bool:
     """Install GLPK and CBC solver binaries using OS package managers."""
     _print_header("Step 3: Solver dependencies (GLPK & CBC)")
 
-    glpk_ok = _which("glpsol") is not None
-    cbc_ok = _which("cbc") is not None
+    glpk_ok = _resolve_solver_binary("glpsol", "SOLVER_GLPK_PATH") is not None
+    cbc_ok = _resolve_solver_binary("cbc", "SOLVER_CBC_PATH") is not None
 
     if glpk_ok and cbc_ok:
-        _print_pass("  Both solvers are already available in PATH — skipping.")
+        _print_pass("  Both solvers are already available — skipping.")
         return True
 
     success = True
@@ -786,17 +935,17 @@ def install_solvers() -> bool:
                     success = False
 
     # ── Report per-solver status ─────────────────────────────────────────
-    glpk_ok = _which("glpsol") is not None
-    cbc_ok = _which("cbc") is not None
+    glpk_exec = _resolve_solver_binary("glpsol", "SOLVER_GLPK_PATH")
+    cbc_exec = _resolve_solver_binary("cbc", "SOLVER_CBC_PATH")
 
-    if glpk_ok:
-        _print_pass("GLPK (glpsol) available")
+    if glpk_exec is not None:
+        _print_pass("GLPK (glpsol) available", str(glpk_exec.parent))
     else:
         _print_fail("GLPK (glpsol) not available")
         success = False
 
-    if cbc_ok:
-        _print_pass("CBC available")
+    if cbc_exec is not None:
+        _print_pass("CBC available", str(cbc_exec.parent))
     else:
         _print_fail("CBC not available")
         success = False
@@ -811,8 +960,8 @@ def install_solvers() -> bool:
 
 def _print_solver_manual_instructions() -> None:
     """Print targeted manual installation instructions for missing solvers."""
-    glpk_missing = _which("glpsol") is None
-    cbc_missing = _which("cbc") is None
+    glpk_missing = _resolve_solver_binary("glpsol", "SOLVER_GLPK_PATH") is None
+    cbc_missing = _resolve_solver_binary("cbc", "SOLVER_CBC_PATH") is None
 
     if not glpk_missing and not cbc_missing:
         return
@@ -896,52 +1045,68 @@ def run_checks() -> bool:
     print("  Checking solver binaries:")
 
     # GLPK: glpsol --version works normally
-    glpsol_path = _which("glpsol")
-    if glpsol_path:
-        try:
-            r = subprocess.run(
-                ["glpsol", "--version"],
-                capture_output=True,
-                text=True,
-                timeout=10,
-            )
-            version_line = (r.stdout or r.stderr or "").strip().split("\n")[0]
-            if r.returncode == 0:
-                _print_pass("GLPK (glpsol)", version_line)
-            else:
-                _print_fail("GLPK (glpsol)", f"exit={r.returncode}; {version_line}")
-                all_ok = False
-        except subprocess.TimeoutExpired:
-            _print_fail("GLPK (glpsol)", "timed out while checking solver")
-            all_ok = False
-    else:
-        _print_fail("GLPK (glpsol)", "'glpsol' not found in PATH")
+    try:
+        glpsol_exec = _validate_configured_solver_binary("glpsol", "SOLVER_GLPK_PATH")
+    except RuntimeError as exc:
+        _print_fail("GLPK (glpsol)", str(exc))
         all_ok = False
+    else:
+        if glpsol_exec is None:
+            glpsol_exec = _find_solver_binary_on_path("glpsol")
+
+        if glpsol_exec is None:
+            _print_fail("GLPK (glpsol)", "not found via SOLVER_GLPK_PATH or PATH")
+            all_ok = False
+        else:
+            try:
+                r = subprocess.run(
+                    [str(glpsol_exec), "--version"],
+                    capture_output=True,
+                    text=True,
+                    timeout=10,
+                )
+                version_line = (r.stdout or r.stderr or "").strip().split("\n")[0]
+                if r.returncode == 0:
+                    _print_pass("GLPK (glpsol)", version_line)
+                else:
+                    _print_fail("GLPK (glpsol)", f"exit={r.returncode}; {version_line}")
+                    all_ok = False
+            except subprocess.TimeoutExpired:
+                _print_fail("GLPK (glpsol)", "timed out while checking solver")
+                all_ok = False
 
     # CBC: probe with -stop for a non-interactive check.
-    cbc_path = _which("cbc")
-    if cbc_path:
-        try:
-            r = subprocess.run(
-                ["cbc", "-stop"],
-                capture_output=True,
-                text=True,
-                timeout=10,
-            )
-            output = (r.stdout or r.stderr or "").strip()
-            lines = [line.strip() for line in output.splitlines() if line.strip()]
-            version_info = lines[1] if len(lines) > 1 else (lines[0] if lines else "cbc responded")
-            if r.returncode == 0:
-                _print_pass("CBC", version_info)
-            else:
-                _print_fail("CBC", f"exit={r.returncode}; {version_info}")
-                all_ok = False
-        except subprocess.TimeoutExpired:
-            _print_fail("CBC", "timed out while checking solver")
-            all_ok = False
-    else:
-        _print_fail("CBC", "'cbc' not found in PATH")
+    try:
+        cbc_exec = _validate_configured_solver_binary("cbc", "SOLVER_CBC_PATH")
+    except RuntimeError as exc:
+        _print_fail("CBC", str(exc))
         all_ok = False
+    else:
+        if cbc_exec is None:
+            cbc_exec = _find_solver_binary_on_path("cbc")
+
+        if cbc_exec is None:
+            _print_fail("CBC", "not found via SOLVER_CBC_PATH or PATH")
+            all_ok = False
+        else:
+            try:
+                r = subprocess.run(
+                    [str(cbc_exec), "-stop"],
+                    capture_output=True,
+                    text=True,
+                    timeout=10,
+                )
+                output = (r.stdout or r.stderr or "").strip()
+                lines = [line.strip() for line in output.splitlines() if line.strip()]
+                version_info = lines[1] if len(lines) > 1 else (lines[0] if lines else "cbc responded")
+                if r.returncode == 0:
+                    _print_pass("CBC", version_info)
+                else:
+                    _print_fail("CBC", f"exit={r.returncode}; {version_info}")
+                    all_ok = False
+            except subprocess.TimeoutExpired:
+                _print_fail("CBC", "timed out while checking solver")
+                all_ok = False
 
     # 4d – Basic app startup check (import the Flask app module)
     print()
