@@ -74,8 +74,8 @@ export default class Home {
         
         $("#cases").tooltip({ selector: '[data-toggle=tooltip]' });
 
-        $("#casePicker").off('click');
-        $("#casePicker, #cases").on('click', '.selectCS', function(e) {
+        $("#casePicker, #cases").off('click', '.selectCS');
+        $("#casePicker, #cases").on('click.homeSelect', '.selectCS', function(e) {
             //console.log('model ', model)
         //$(document).delegate(".selectCS","click",function(e){
             e.preventDefault();
@@ -114,7 +114,9 @@ export default class Home {
         });
 
         //copy case
-        $(document).delegate(".copyCS","click",function(e){
+        $(document).off('click', '.copyCS');
+        $("#cases").off('click', '.copyCS');
+        $("#cases").on('click.homeCopy', '.copyCS', function(e){
             e.stopImmediatePropagation();
             var casename = $(this).attr('data-ps');
             if (casename !== model.casename) {
@@ -160,7 +162,9 @@ export default class Home {
         });
 
         //delete case
-        $(document).delegate(".deleteModel","click",function(e){
+        $(document).off('click', '.deleteModel');
+        $("#cases").off('click', '.deleteModel');
+        $("#cases").on('click.homeDelete', '.deleteModel', function(e){
             var casename = $(this).attr('data-ps');
             if (casename !== model.casename) {
                 Message.bigBoxWarning('Delete message',
