@@ -35,7 +35,7 @@ Current tracks:
 
 ## Intake requirements
 
-Implementation work must start from an issue.
+Most implementation work must start from an issue.
 
 The issue must document:
 - `Related issues reviewed`
@@ -54,11 +54,15 @@ If overlapping work exists, explain why your issue is still needed and classify 
 - `narrower fix`
 - `superseding`
 
-PRs must document:
+If no overlap exists, a short current justification is enough.
+
+PRs should document:
 - linked issue
 - related work reviewed
 - overlap assessment
 - why the PR should proceed
+
+The `pr-intake` workflow is advisory. If required structure is missing, it may apply the `needs-intake-fix` label so maintainers can follow up.
 
 ## Workflow
 
@@ -71,7 +75,7 @@ PRs must document:
 
 ## Required branching rule
 
-Every contribution must use:
+Every implementation contribution must use:
 - an issue for scope and acceptance criteria
 - a feature branch for implementation
 
@@ -111,9 +115,11 @@ This exception is narrow. It does not cover:
 
 Use the `Exception rationale` section in the PR template when claiming this exception.
 
+Docs-only PRs may still use a linked issue instead of the exception path.
+
 ## Transition note
 
-Existing open PRs from before the intake rollout are transitional and may be handled manually while the new check is phased in.
+Existing open PRs and older linked issues from before the intake rollout are transitional and may be handled manually while the new intake guidance is phased in.
 
 ## Definition of done
 

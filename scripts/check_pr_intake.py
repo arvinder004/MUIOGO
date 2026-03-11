@@ -30,21 +30,6 @@ ALLOWED_TRACKS = {
     "track: stability",
 }
 
-ISSUE_REQUIRED_SECTIONS = (
-    "Related issues reviewed",
-    "Related PRs reviewed",
-    "Overlap classification",
-    "Why this issue is still needed",
-    "Proposed track",
-)
-
-PR_REQUIRED_SECTIONS = (
-    "Linked issue",
-    "Existing related work reviewed",
-    "Overlap assessment",
-    "Why this PR should proceed",
-)
-
 DOCS_ONLY_ALLOWED_EXACT = {
     "README.md",
     "SUPPORT.md",
@@ -318,6 +303,13 @@ def validate_pr_body(repo: str, pr_body: str, token: str, errors: list[str]) -> 
         validate_pr_reason(why_proceed, errors)
 
 
+def pr_has_linked_issue_reference(pr_body: str) -> bool:
+    linked_issue = extract_section(pr_body, "Linked issue")
+    if linked_issue is None:
+        return False
+    return bool(find_linked_issue_numbers(linked_issue))
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Validate PR intake structure")
     parser.add_argument("--repo", required=True, help="GitHub repository in owner/name form")
@@ -342,7 +334,9 @@ def main() -> int:
     errors: list[str] = []
     pr_body = pr.get("body") or ""
 
-    if is_docs_exception_eligible(changed_paths):
+    if pr_has_linked_issue_reference(pr_body):
+        validate_pr_body(args.repo, pr_body, token, errors)
+    elif is_docs_exception_eligible(changed_paths):
         validate_exception_rationale(pr_body, errors)
     else:
         validate_pr_body(args.repo, pr_body, token, errors)

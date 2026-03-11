@@ -23,12 +23,6 @@
 - What changed:
 - Why:
 
-## Related issues
-
-- [ ] Issue exists and is linked
-- Closes #
-- Related #
-
 ## Validation
 
 - [ ] Tests added/updated (or not applicable)
@@ -49,5 +43,5 @@
 
 ## Exception rationale
 
-- Only for narrow docs/typo PRs with no linked issue.
+- Only for narrow docs/typo PRs that do not use a linked issue.
 - Leave blank otherwise.

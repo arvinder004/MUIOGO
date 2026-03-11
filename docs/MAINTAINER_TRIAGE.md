@@ -11,6 +11,8 @@ Automation checks structure only:
 - required issue sections are present
 - required PR sections are present
 
+If structure is missing, automation may apply the `needs-intake-fix` label to the PR.
+
 Maintainers still decide whether the proposal is correct, useful, or merge-ready.
 
 ## What to review on new implementation issues
@@ -80,4 +82,4 @@ Open PRs that predate the intake rollout are transitional:
 - maintainers may clean them up manually
 - they are not retroactively required to match the new structure before the rollout is complete
 
-Once the queue is cleaned up and `pr-intake` becomes required on `main`, new or substantially updated PRs should follow the full intake format.
+Once the queue is cleaned up, new or substantially updated PRs should follow the full intake format. The intake workflow is advisory and does not replace maintainer judgment.
