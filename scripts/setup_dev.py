@@ -443,6 +443,13 @@ def _demo_data_paths_to_remove() -> list[Path]:
 def install_demo_data(force: bool, yes: bool) -> bool:
     _print_header("Step 4: Demo data")
 
+    if not _confirm_force_demo_data(force=force, yes=yes):
+        return False
+
+    if demo_data_present() and not force:
+        _print_pass("Demo data already installed", str(DEMO_DATA_REQUIRED_DIRS[0]))
+        return True
+
     if not DEMO_DATA_ARCHIVE.exists():
         print("  Demo-data archive not found locally; downloading from release asset ...")
         DEMO_DATA_ARCHIVE.parent.mkdir(parents=True, exist_ok=True)
@@ -475,13 +482,6 @@ def install_demo_data(force: bool, yes: bool) -> bool:
                     tmp_path.unlink()
                 except OSError:
                     pass
-
-    if not _confirm_force_demo_data(force=force, yes=yes):
-        return False
-
-    if demo_data_present() and not force:
-        _print_pass("Demo data already installed", str(DEMO_DATA_REQUIRED_DIRS[0]))
-        return True
 
     if force:
         targets = [p for p in _demo_data_paths_to_remove() if p.exists()]
@@ -1246,7 +1246,7 @@ def main() -> int:
         "--with-demo-data",
         action="store_true",
         dest="with_demo_data",
-        help="Install demo data from local archive (default behavior).",
+        help="Install demo data (uses local archive if present, otherwise downloads from release asset). This is the default.",
     )
     parser.add_argument(
         "--no-demo-data",
