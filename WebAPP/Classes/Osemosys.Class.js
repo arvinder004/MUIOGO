@@ -310,7 +310,7 @@ export class Osemosys {
         })
         .then(response => {
             if (!response.ok) {
-                throw new Error("Could not load model file");
+                throw new Error("Could not load log file");
             }
             return response.text();   // ✔ return the real text
         })

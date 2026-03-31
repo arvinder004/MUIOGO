@@ -173,6 +173,23 @@ export default class DataFile {
                 .trigger('change'); // ako imaš logiku na change eventu
         }
 
+        function syncToggleAllButton() {
+            const $btn = $('#toggle-all');
+            const $boxes = $('#osy-scOrder input[type="checkbox"]:not(:disabled)');
+            const allChecked = $boxes.length > 0 && !$boxes.is(':not(:checked)');
+            const $icon = $btn.find('i.fa');
+
+            if (allChecked) {
+                $icon.removeClass('fa-square-o').addClass('fa-check-square-o');
+                $btn.find('span').text('Uncheck all');
+            } else {
+                $icon.removeClass('fa-check-square-o').addClass('fa-square-o');
+                $btn.find('span').text('Check all');
+            }
+        }
+
+        syncToggleAllButton();
+
         $("#toggle-all").off('click');
         $('#toggle-all').on('click', function (e) {
             
@@ -188,18 +205,7 @@ export default class DataFile {
             // Ako ima nečekiranih → čekiraj sve, inače → poništi sve
             setAllCheckboxes(anyUnchecked);
 
-            // Ažuriraj label dugmeta da bude intuitivna
-            //$btn.text(anyUnchecked ? 'Uncheck all' : 'Check all');
-            const $icon = $btn.find('i.fa');
-            if (anyUnchecked) {
-                // Sada su SVI čekirani -> prikaži "poništi" ikonu
-                $icon.removeClass('fa-square-o').addClass('fa-check-square-o');
-                $btn.find('span').text('Uncheck all'); // ili ukloni ovu liniju ako želiš samo ikonu
-            } else {
-                // Sada su SVI odčekirani -> prikaži "odaberi" ikonu
-                $icon.removeClass('fa-check-square-o').addClass('fa-square-o');
-                $btn.find('span').text('Check all'); // ili ukloni ovu liniju ako želiš samo ikonu
-            }
+            syncToggleAllButton();
 
         });
 
@@ -951,5 +957,4 @@ export default class DataFile {
         Message.loaderEnd();
     }
 }
-
 

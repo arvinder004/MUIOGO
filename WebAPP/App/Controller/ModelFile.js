@@ -1,10 +1,15 @@
+import { Base } from "../../Classes/Base.Class.js";
 import { Osemosys } from "../../Classes/Osemosys.Class.js";
 
 export default class ModelFile {
 
   static onLoad() {
-    Osemosys.readModelFile()
-      .then(txt => {
+    Promise.all([
+      Base.getSession().catch(() => ({ session: "" })),
+      Osemosys.readModelFile()
+    ])
+      .then(([sessionData, txt]) => {
+        document.getElementById("osy-case").textContent = sessionData.session || "";
         if (!txt) {
           document.getElementById("equations").innerHTML =
             "<div class='alert alert-danger'>Unable to load model file.</div>";
