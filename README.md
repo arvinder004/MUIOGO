@@ -85,6 +85,7 @@ One of the core goals of MUIOGO is to become platform independent so separate pl
 
 Start with:
 - `CONTRIBUTING.md`
+- `docs/GSoC-2026.md`
 - `SUPPORT.md`
 - `docs/ARCHITECTURE.md`
 - `docs/DOCS_POLICY.md`
