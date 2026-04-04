@@ -210,6 +210,8 @@ def downloadDataFile():
         # return jsonify(response), 200
         #path = "/Examples.pdf"
         case = session.get('osycase', None)
+        if case is None:
+            return jsonify({'message': 'No active session. Please select a model first.', 'status_code': 'error'}), 400
         caserunname = request.args.get('caserunname')
         Config.validate_path(Config.DATA_STORAGE, os.path.join(case or '', 'res', caserunname or ''))
         dataFile = Path(Config.DATA_STORAGE,case, 'res',caserunname, 'data.txt')
@@ -224,6 +226,8 @@ def downloadDataFile():
 def downloadFile():
     try:
         case = session.get('osycase', None)
+        if case is None:
+            return jsonify({'message': 'No active session. Please select a model first.', 'status_code': 'error'}), 400
         file = request.args.get('file')
         Config.validate_path(Config.DATA_STORAGE, os.path.join(case or '', 'res', 'csv', file or ''))
         dataFile = Path(Config.DATA_STORAGE,case,'res','csv',file)
@@ -238,6 +242,8 @@ def downloadFile():
 def downloadCSVFile():
     try:
         case = session.get('osycase', None)
+        if case is None:
+            return jsonify({'message': 'No active session. Please select a model first.', 'status_code': 'error'}), 400
         file = request.args.get('file')
         caserunname = request.args.get('caserunname')
         Config.validate_path(Config.DATA_STORAGE, os.path.join(case or '', 'res', caserunname or '', 'csv', file or ''))
@@ -253,6 +259,8 @@ def downloadCSVFile():
 def downloadResultsFile():
     try:
         case = session.get('osycase', None)
+        if case is None:
+            return jsonify({'message': 'No active session. Please select a model first.', 'status_code': 'error'}), 400
         caserunname = request.args.get('caserunname')
         Config.validate_path(Config.DATA_STORAGE, os.path.join(case or '', 'res', caserunname or ''))
         dataFile = Path(Config.DATA_STORAGE,case, 'res', caserunname,'results.txt')
