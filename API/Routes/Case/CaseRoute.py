@@ -102,7 +102,7 @@ def copy():
     except(IOError):
         raise IOError
     except OSError:
-        raise OSError
+        return jsonify({'message': 'A filesystem error occurred.', 'status_code': 'error'}), 500
 
 @case_api.route("/deleteCase", methods=['POST'])
 def deleteCase():
@@ -127,7 +127,7 @@ def deleteCase():
     except(IOError):
         return jsonify('No existing cases!'), 404
     except OSError:
-        raise OSError
+        return jsonify({'message': 'A filesystem error occurred.', 'status_code': 'error'}), 500
 
 @case_api.route("/getResultData", methods=['POST'])
 def getResultData():
