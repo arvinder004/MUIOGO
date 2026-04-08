@@ -4,7 +4,9 @@ import tempfile
 from dotenv import load_dotenv
 import platform
 
-# Central path validation utility (prevents path traversal)
+# Central path validation utility (prevents path traversal).
+# Declared as a CodeQL sanitizer barrier in .github/codeql/extensions/.
+# If the return-value semantics of this function change, update that file too.
 def validate_path(base_dir, user_input):
     base_raw = os.fspath(base_dir)
     user_raw = "" if user_input is None else os.fspath(user_input)

@@ -1,0 +1,11 @@
+extensions:
+  - addsTo:
+      pack: codeql/python-all
+      extensible: barrierModel
+    data:
+      # validate_path checks that the resolved path stays inside DATA_STORAGE,
+      # raising PermissionError on traversal. Its return value is the safe
+      # absolute path. CodeQL does not recognise this as a built-in sanitizer,
+      # so we declare it here. Any change to validate_path's return-value
+      # semantics must be reflected in this file.
+      - ["Classes.Base.Config", "Member[validate_path].ReturnValue", "path-injection"]
