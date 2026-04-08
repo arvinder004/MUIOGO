@@ -11,6 +11,62 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 API_DIR = PROJECT_ROOT / "API"
 
 
+class ValidatePathTests(unittest.TestCase):
+    """Tests for Config.validate_path — the CodeQL sanitizer barrier.
+
+    This function is declared as a sanitizer in .github/codeql/extensions/.
+    If its behaviour changes, both this test and that model file must be updated.
+    """
+
+    @classmethod
+    def setUpClass(cls):
+        sys.path.insert(0, str(API_DIR))
+        from Classes.Base import Config
+        cls.Config = Config
+
+    def setUp(self):
+        self.base = os.path.realpath(tempfile.mkdtemp())
+
+    def tearDown(self):
+        import shutil
+        shutil.rmtree(self.base, ignore_errors=True)
+
+    def test_valid_path_returns_absolute(self):
+        result = self.Config.validate_path(self.base, "casename")
+        self.assertTrue(os.path.isabs(result))
+        self.assertTrue(result.startswith(self.base))
+
+    def test_traversal_dotdot_is_blocked(self):
+        with self.assertRaises(PermissionError):
+            self.Config.validate_path(self.base, "../outside")
+
+    def test_traversal_absolute_path_is_blocked(self):
+        with self.assertRaises(PermissionError):
+            self.Config.validate_path(self.base, "/etc/passwd")
+
+    def test_traversal_encoded_dotdot_is_blocked(self):
+        with self.assertRaises(PermissionError):
+            self.Config.validate_path(self.base, "case/../../outside")
+
+    def test_null_byte_is_blocked(self):
+        with self.assertRaises(PermissionError):
+            self.Config.validate_path(self.base, "case\x00evil")
+
+    def test_none_input_is_blocked(self):
+        # None resolves to the base dir itself, which is rejected
+        with self.assertRaises(PermissionError):
+            self.Config.validate_path(self.base, None)
+
+    def test_base_dir_itself_is_blocked(self):
+        # Pointing exactly at the base is not a valid case path
+        with self.assertRaises(PermissionError):
+            self.Config.validate_path(self.base, "")
+
+    def test_nested_path_is_allowed(self):
+        result = self.Config.validate_path(self.base, os.path.join("case", "res", "run1"))
+        self.assertTrue(result.startswith(self.base))
+
+
 class AppSmokeTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
