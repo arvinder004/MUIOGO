@@ -8,4 +8,10 @@ extensions:
       # absolute path. CodeQL does not recognise this as a built-in sanitizer,
       # so we declare it here. Any change to validate_path's return-value
       # semantics must be reflected in this file.
+      #
+      # Two module paths are listed because CodeQL may resolve the local module
+      # relative to the repo root (API.Classes.Base.Config) or relative to the
+      # API/ source root (Classes.Base.Config) depending on how it infers
+      # PYTHONPATH. Only one will match; the other is a no-op.
       - ["Classes.Base.Config", "Member[validate_path].ReturnValue", "path-injection"]
+      - ["API.Classes.Base.Config", "Member[validate_path].ReturnValue", "path-injection"]
