@@ -3,6 +3,7 @@ from pathlib import Path
 import shutil, datetime, time, os, logging
 from Classes.Case.DataFileClass import DataFile
 from Classes.Base import Config
+from utils import validate_json_fields
 
 logger = logging.getLogger(__name__)
 
@@ -28,6 +29,9 @@ def generateDataFile():
 @datafile_api.route("/createCaseRun", methods=['POST'])
 def createCaseRun():
     try:
+        err, code = validate_json_fields('casename', 'caserunname', 'data')
+        if err:
+            return err, code
         casename = request.json['casename']
         caserunname = request.json['caserunname']
         data = request.json['data']
@@ -43,6 +47,9 @@ def createCaseRun():
 @datafile_api.route("/updateCaseRun", methods=['POST'])
 def updateCaseRun():
     try:
+        err, code = validate_json_fields('casename', 'caserunname', 'oldcaserunname', 'data')
+        if err:
+            return err, code
         casename = request.json['casename']
         caserunname = request.json['caserunname']
         oldcaserunname = request.json['oldcaserunname']
@@ -59,6 +66,10 @@ def updateCaseRun():
 @datafile_api.route("/deleteCaseRun", methods=['POST'])
 def deleteCaseRun():
     try:
+        err, code = validate_json_fields('casename', 'caserunname', 'resultsOnly')
+        if err:
+            return err, code
+
         casename = request.json['casename']
         caserunname = request.json['caserunname']
         resultsOnly = request.json['resultsOnly']
@@ -255,6 +266,9 @@ def downloadResultsFile():
 @datafile_api.route("/run", methods=['POST'])
 def run():
     try:
+        err, code = validate_json_fields('casename', 'caserunname', 'solver')
+        if err:
+            return err, code
         casename = request.json['casename']
         caserunname = request.json['caserunname']
         solver = request.json['solver']
@@ -273,6 +287,9 @@ def run():
 @datafile_api.route("/batchRun", methods=['POST'])
 def batchRun():
     try:
+        err, code = validate_json_fields('modelname', 'cases')
+        if err:
+            return err, code
         start = time.time()
         modelname = request.json['modelname']
         cases = request.json['cases']
