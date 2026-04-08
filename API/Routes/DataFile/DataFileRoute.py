@@ -66,7 +66,7 @@ def deleteCaseRun():
         if not casename:
             return jsonify({'message': 'No model selected.', 'status_code': 'error'}), 400
 
-        Config.validate_path(Config.DATA_STORAGE, Path(casename, 'res', caserunname))
+        Config.validate_path(Config.DATA_STORAGE, os.path.join(casename, 'res', caserunname or ''))
         casePath = Path(Config.DATA_STORAGE, casename, 'res', caserunname)
         if not resultsOnly:
             shutil.rmtree(casePath)
@@ -200,7 +200,7 @@ def downloadDataFile():
         #path = "/Examples.pdf"
         case = session.get('osycase', None)
         caserunname = request.args.get('caserunname')
-        Config.validate_path(Config.DATA_STORAGE, Path(case, 'res', caserunname))
+        Config.validate_path(Config.DATA_STORAGE, os.path.join(case or '', 'res', caserunname or ''))
         dataFile = Path(Config.DATA_STORAGE,case, 'res',caserunname, 'data.txt')
         return send_file(dataFile.resolve(), as_attachment=True, max_age=0)
 
@@ -214,7 +214,7 @@ def downloadFile():
     try:
         case = session.get('osycase', None)
         file = request.args.get('file')
-        Config.validate_path(Config.DATA_STORAGE, Path(case, 'res', 'csv', file))
+        Config.validate_path(Config.DATA_STORAGE, os.path.join(case or '', 'res', 'csv', file or ''))
         dataFile = Path(Config.DATA_STORAGE,case,'res','csv',file)
         return send_file(dataFile.resolve(), as_attachment=True, max_age=0)
 
@@ -229,7 +229,7 @@ def downloadCSVFile():
         case = session.get('osycase', None)
         file = request.args.get('file')
         caserunname = request.args.get('caserunname')
-        Config.validate_path(Config.DATA_STORAGE, Path(case, 'res', caserunname, 'csv', file))
+        Config.validate_path(Config.DATA_STORAGE, os.path.join(case or '', 'res', caserunname or '', 'csv', file or ''))
         dataFile = Path(Config.DATA_STORAGE,case,'res',caserunname,'csv',file)
         return send_file(dataFile.resolve(), as_attachment=True, max_age=0)
 
@@ -243,7 +243,7 @@ def downloadResultsFile():
     try:
         case = session.get('osycase', None)
         caserunname = request.args.get('caserunname')
-        Config.validate_path(Config.DATA_STORAGE, Path(case, 'res', caserunname))
+        Config.validate_path(Config.DATA_STORAGE, os.path.join(case or '', 'res', caserunname or ''))
         dataFile = Path(Config.DATA_STORAGE,case, 'res', caserunname,'results.txt')
         return send_file(dataFile.resolve(), as_attachment=True, max_age=0)
 
