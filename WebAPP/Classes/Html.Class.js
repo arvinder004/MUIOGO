@@ -2,6 +2,13 @@ import { CURRENCY, UNITDEFINITION } from './Const.Class.js';
 import { Message } from "./Message.Class.js";
 
 export class Html {
+    static renderPreformatted(target, text, emptyMessage = '') {
+        const $target = $(target);
+        const content = text == null || text === '' ? emptyMessage : String(text);
+
+        $target.empty();
+        $target.append($('<pre>', { class: 'log-output' }).text(content));
+    }
 
     static renderModels(cases, selectedCS) {
         $('#cases').empty();
@@ -52,14 +59,14 @@ export class Html {
                             </td>
                             <td style="width:40px; text-align:center">
                                 <span data-toggle="modal" data-target="#modalcopy">
-                                    <span class="copyCS" data-ps="${value}"' + 'id="copy_${value}"  data-toggle="tooltip" data-placement="top" title="Copy model" >
+                                    <span class="copyCS" data-ps="${value}" id="copy_${value}" data-toggle="tooltip" data-placement="top" title="${selectedCS == value ? 'Copy model' : 'Select model first to copy'}">
                                         <span class="glyphicon glyphicon-duplicate text-info icon-btn"></span>
                                     </span>
                                 </span>
                             </td>
                             <td style="width:40px; text-align:center">
                                 <span>
-                                    <span class="deleteModel" data-ps="${value}"'+'data-toggle="tooltip" data-placement="top" title="Delete model">
+                                    <span class="deleteModel" data-ps="${value}" data-toggle="tooltip" data-placement="top" title="${selectedCS == value ? 'Delete model' : 'Select model first to delete'}">
                                         <span  class="glyphicon glyphicon-trash danger icon-btn"></span>
                                     </span>
                                 </span>
@@ -198,7 +205,7 @@ export class Html {
         //     $("#osy-DataFile").html('Data file is to large for preview.');
         // }
 
-        $("#osy-DataFile").html('<pre class="log-output">'+DataFile+'</pre>');
+        Html.renderPreformatted('#osy-DataFile', DataFile, 'Data file preview unavailable.');
 
         $('#tabs a[href="#tabDataFile"]').tab('show');
 
@@ -207,6 +214,10 @@ export class Html {
                 File
             </a>`);
 
+    }
+
+    static renderModelFile(ModelFile){
+        Html.renderPreformatted('#osy-ModelFile', ModelFile, 'Model file preview unavailable.');
     }
 
     static appendCasePicker(value, selectedCS, pageId) {

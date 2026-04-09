@@ -1,9 +1,6 @@
-# 🎓 Applications for MUIOGO Are Now Open!
+# 🎓 Applications for MUIOGO Are Now Closed
 
-Please complete the following questionnaire so we can keep track of everybody’s application in a structured way:
-
-🗓 **Deadline**: 16 March  
-📄 **Apply** [here](https://forms.gle/8Yvw2H6Q7Qw6snSN9)
+For the broader project description, see [OG–CLEWS: Integrating Open-Source Economic and Environmental Models for Sustainable Development](https://opensource.unicc.org/un/unoict/mentorship-programme/google-summer-of-code/-/blob/main/README.md#ogclews-integrating-open-source-economic-and-environmental-models-for-sustainable-development).
 
 ---
 <p align="center"><img src="assets/MUIOGO_Logo.png" width="50%"></p>
@@ -32,7 +29,7 @@ At the moment, this repository starts from a direct copy baseline of MUIO. The g
 
 - Git:
   - Install: [git-scm.com](https://git-scm.com/downloads)
-- Python 3.11:
+- Python 3.10 to 3.12 (recommended: 3.11):
   - macOS (in Terminal): `brew install python@3.11`
   - Windows (in PowerShell or Command Prompt): `winget install -e --id Python.Python.3.11`
   - Installer downloads: [python.org macOS](https://www.python.org/downloads/macos/) / [python.org Windows](https://www.python.org/downloads/windows/)
@@ -61,6 +58,7 @@ For setup options, use the "--help" flag:
 
 > **Note:** The setup scripts handle more than Python packages (venv creation,
 > solver installation, demo data). Using them is the recommended onboarding path.
+> MUIOGO currently supports Python 3.10 to 3.12, with Python 3.11 recommended.
 >
 > Advanced users who want to manage dependencies or packaging manually can use
 > the [Advanced Setup and Packaging](#advanced-setup-and-packaging) section
@@ -68,15 +66,11 @@ For setup options, use the "--help" flag:
 
 ## Demo Data
 
-- Archive: `assets/demo-data/CLEWs.Demo.zip`
+The demo dataset (`CLEWs.Demo.zip`) is hosted as a [GitHub release asset](https://github.com/EAPD-DRB/MUIOGO/releases/tag/demo-data) and downloaded automatically during setup when not already cached locally.
+
 - SHA-256: `facf4bda703f67b3c8b8697fea19d7d49be72bc2029fc05a68c61fd12ba7edde`
 
-Setup installs demo data by default.
-
-To install demo data manually:
-
-1. Unzip `assets/demo-data/CLEWs.Demo.zip` into `WebAPP/DataStorage/`
-2. Confirm this folder exists: `WebAPP/DataStorage/CLEWs Demo/`
+Setup installs demo data by default. The archive is downloaded once, cached in `assets/demo-data/`, and reused on subsequent runs.
 
 One of the core goals of MUIOGO is to become platform independent so separate platform-specific ports are no longer required.
 
@@ -92,6 +86,7 @@ One of the core goals of MUIOGO is to become platform independent so separate pl
 Start with:
 - `CONTRIBUTING.md`
 - `docs/GSoC-2026.md`
+- `SUPPORT.md`
 - `docs/ARCHITECTURE.md`
 - `docs/DOCS_POLICY.md`
 
@@ -105,7 +100,9 @@ Templates:
 
 ### Advanced Setup and Packaging
 
-If you need to install Python dependencies without the setup scripts:
+If you need to install Python dependencies without the setup scripts, note
+that this manual path still requires a supported Python version (`3.10` to
+`3.12`) and does not add compatibility for newer Python releases.
 
 ```bash
 # All platforms — runtime

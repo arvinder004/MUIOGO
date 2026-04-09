@@ -1,7 +1,7 @@
 name: Question or blocker
-description: Ask for clarification or report a blocker.
+description: Ask a question or flag something that is getting in the way.
 title: "[Question/Blocker] "
-labels: ["blocked"]
+labels: ["needs-decision"]
 body:
   - type: dropdown
     id: kind
@@ -16,21 +16,39 @@ body:
     id: context
     attributes:
       label: Context
-      description: What are you trying to do?
+      description: What are you working on?
     validations:
       required: true
   - type: textarea
     id: blocking
     attributes:
-      label: What is blocked?
-      description: Describe the failure point or missing decision.
+      label: What's the question or blocker?
+      description: Tell us what you are unsure about or what is getting in the way.
     validations:
       required: true
   - type: textarea
     id: help
     attributes:
-      label: Requested decision or help
-      description: What specific answer do you need?
+      label: What would help? (optional)
+      description: If you know, say what kind of answer or decision would unblock you.
     validations:
-      required: true
-
+      required: false
+  - type: textarea
+    id: related_work
+    attributes:
+      label: Related issue, PR, or discussion (optional)
+      description: If you already found something relevant, link it here.
+    validations:
+      required: false
+  - type: dropdown
+    id: proposed_track
+    attributes:
+      label: Proposed track
+      description: Optional. Pick one if it helps.
+      options:
+        - Track: Cross-Platform
+        - Track: OG Onboarding
+        - Track: Integration
+        - Track: Stability
+    validations:
+      required: false
